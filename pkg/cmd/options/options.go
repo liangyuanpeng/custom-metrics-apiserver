@@ -20,11 +20,14 @@ package options
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/spf13/pflag"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
+	clientgoinformers "k8s.io/client-go/informers"
+	clientgoclientset "k8s.io/client-go/kubernetes"
 	openapicommon "k8s.io/kube-openapi/pkg/common"
 )
 
@@ -99,7 +102,12 @@ func (o *CustomMetricsAdapterServerOptions) ApplyTo(serverConfig *genericapiserv
 	if err := o.Audit.ApplyTo(serverConfig); err != nil {
 		return err
 	}
-	if err := o.Features.ApplyTo(serverConfig); err != nil {
+	clientgolClient, err := clientgoclientset.NewForConfig(serverConfig.LoopbackClientConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create real external clientset: %v", err)
+	}
+	versionedInformers := clientgoinformers.NewSharedInformerFactory(clientgolClient, 10*time.Minute)
+	if err := o.Features.ApplyTo(serverConfig, clientgolClient, versionedInformers); err != nil {
 		return err
 	}
 
