@@ -28,6 +28,8 @@ import (
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	clientgoinformers "k8s.io/client-go/informers"
 	clientgoclientset "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	openapicommon "k8s.io/kube-openapi/pkg/common"
 )
 
@@ -84,7 +86,7 @@ func (o *CustomMetricsAdapterServerOptions) AddFlags(fs *pflag.FlagSet) {
 }
 
 // ApplyTo applies CustomMetricsAdapterServerOptions to the server configuration.
-func (o *CustomMetricsAdapterServerOptions) ApplyTo(serverConfig *genericapiserver.Config) error {
+func (o *CustomMetricsAdapterServerOptions) ApplyTo(serverConfig *genericapiserver.Config, clientConfig *rest.Config) error {
 	// TODO have a "real" external address (have an AdvertiseAddress?)
 	if err := o.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return fmt.Errorf("error creating self-signed certificates: %v", err)
@@ -102,7 +104,8 @@ func (o *CustomMetricsAdapterServerOptions) ApplyTo(serverConfig *genericapiserv
 	if err := o.Audit.ApplyTo(serverConfig); err != nil {
 		return err
 	}
-	clientgolClient, err := clientgoclientset.NewForConfig(serverConfig.LoopbackClientConfig)
+	klog.Info("serverConfig.clientConfig:", clientConfig)
+	clientgolClient, err := clientgoclientset.NewForConfig(clientConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create real external clientset: %v", err)
 	}

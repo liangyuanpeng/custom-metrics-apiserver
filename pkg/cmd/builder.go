@@ -304,9 +304,9 @@ func (b *AdapterBase) Config() (*apiserver.Config, error) {
 		if errList := b.CustomMetricsAdapterServerOptions.Validate(); len(errList) > 0 {
 			return nil, utilerrors.NewAggregate(errList)
 		}
-
+		
 		serverConfig := genericapiserver.NewConfig(apiserver.Codecs)
-		err := b.CustomMetricsAdapterServerOptions.ApplyTo(serverConfig)
+		err := b.CustomMetricsAdapterServerOptions.ApplyTo(serverConfig,b.clientConfig)
 		if err != nil {
 			return nil, err
 		}
