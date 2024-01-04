@@ -113,7 +113,7 @@ func TestApplyTo(t *testing.T) {
 
 			// serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
 			serverConfig := genericapiserver.NewConfig(apiserver.Codecs)
-			err = o.ApplyTo(serverConfig, nil)
+			err = o.ApplyTo(serverConfig, nil, nil)
 
 			defer func() {
 				// Close the listener, if any

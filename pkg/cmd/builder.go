@@ -306,7 +306,7 @@ func (b *AdapterBase) Config() (*apiserver.Config, error) {
 		}
 		
 		serverConfig := genericapiserver.NewConfig(apiserver.Codecs)
-		err := b.CustomMetricsAdapterServerOptions.ApplyTo(serverConfig,b.clientConfig)
+		err := b.CustomMetricsAdapterServerOptions.ApplyTo(serverConfig,b.clientConfig,b.informers)
 		if err != nil {
 			return nil, err
 		}
